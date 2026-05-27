@@ -60,6 +60,14 @@ input {
   color: var(--dark);
 }
  
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+}
+
 .brand-mark {
   width: 34px;
   height: 34px;
@@ -826,6 +834,8 @@ input {
   background: #e2e8f0;
   position: relative;
   overflow: hidden;
+  max-width: 22px;
+  margin: 0 auto;
 }
 
 .bar-fill {
