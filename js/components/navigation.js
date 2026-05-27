@@ -9,6 +9,12 @@ export class Navigation {
     this.navLinks.forEach((link) => {
       link.addEventListener("click", (event) => {
         event.preventDefault();
+        
+        if (link.classList.contains("coming-soon")) {
+          alert("Fitur Saving akan segera hadir! Kami sedang mempersiapkannya untuk Anda. 🚀");
+          return;
+        }
+
         this.activateNav(link);
         this.focusSection(link.dataset.view);
         history.replaceState(null, "", link.getAttribute("href"));

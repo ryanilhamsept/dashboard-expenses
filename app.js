@@ -6,6 +6,7 @@ import { ExpensesPage } from './js/pages/expenses.js';
 import { AnalyticsPage } from './js/pages/analytics.js';
 import { BillsPage } from './js/pages/bills.js';
 import { GoalsPage } from './js/pages/goals.js';
+import { LockScreen } from './js/components/auth.js';
 
 class App {
   constructor() {
@@ -19,12 +20,16 @@ class App {
     this.analyticsPage = new AnalyticsPage(this.state);
     this.billsPage = new BillsPage(this.state);
     this.goalsPage = new GoalsPage(this.state, this.sheetService);
+    this.lockScreen = new LockScreen();
     
     // Connect sheetService to expensesPage to allow status updates
     this.sheetService.setExpensesPage(this.expensesPage);
   }
 
   init() {
+    // Initialize Lock Screen first to block visual access if locked
+    this.lockScreen.init();
+
     // Initialize components & pages
     this.navigation.init();
     this.dashboardPage.init();
