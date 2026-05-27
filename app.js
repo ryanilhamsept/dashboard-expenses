@@ -6,6 +6,7 @@ import { ExpensesPage } from './js/pages/expenses.js';
 import { AnalyticsPage } from './js/pages/analytics.js';
 import { BillsPage } from './js/pages/bills.js';
 import { GoalsPage } from './js/pages/goals.js';
+import { InvestmentPage } from './js/pages/investment.js';
 import { LockScreen } from './js/components/auth.js';
 
 class App {
@@ -20,6 +21,7 @@ class App {
     this.analyticsPage = new AnalyticsPage(this.state);
     this.billsPage = new BillsPage(this.state);
     this.goalsPage = new GoalsPage(this.state, this.sheetService);
+    this.investmentPage = new InvestmentPage(this.state);
     this.lockScreen = new LockScreen();
     
     // Connect sheetService to expensesPage to allow status updates
@@ -37,6 +39,7 @@ class App {
     this.analyticsPage.init();
     this.billsPage.init();
     this.goalsPage.init();
+    this.investmentPage.init();
 
     // Subscribe pages to state changes
     this.state.subscribe(() => this.render());
@@ -77,10 +80,12 @@ class App {
   render() {
     const { currentView } = this.state;
     const isAllExpensesView = currentView === "expenses";
+    const isInvestmentView = currentView === "investment";
+    const isGoalsView = currentView === "goals";
 
     // Global layout toggles
     document.querySelectorAll(".dashboard-only").forEach((item) => {
-      item.classList.toggle("is-hidden", isAllExpensesView);
+      item.classList.toggle("is-hidden", isAllExpensesView || isInvestmentView || isGoalsView);
     });
     document.querySelectorAll(".expenses-only").forEach((item) => {
       item.classList.toggle("is-hidden", !isAllExpensesView);
@@ -92,7 +97,7 @@ class App {
     const gridEl = document.querySelector("#dashboardGrid");
 
     if (metricsEl) {
-      metricsEl.classList.toggle("is-hidden", currentView === "goals");
+      metricsEl.classList.toggle("is-hidden", isGoalsView || isInvestmentView);
     }
 
     if (isAllExpensesView) {
@@ -117,6 +122,24 @@ class App {
     this.analyticsPage.render();
     this.billsPage.render();
     this.goalsPage.render();
+    this.investmentPage.render();
+
+    // Centralized visibility overrides to ensure correct active page
+    const goalWriterEl = document.querySelector("#goalWriter");
+    const investmentPageEl = document.querySelector("#investmentPage");
+
+    if (metricsEl) {
+      metricsEl.classList.toggle("is-hidden", isGoalsView || isInvestmentView);
+    }
+    if (gridEl) {
+      gridEl.classList.toggle("is-hidden", isGoalsView || isInvestmentView);
+    }
+    if (goalWriterEl) {
+      goalWriterEl.classList.toggle("is-hidden", !isGoalsView);
+    }
+    if (investmentPageEl) {
+      investmentPageEl.classList.toggle("is-hidden", !isInvestmentView);
+    }
   }
 }
 

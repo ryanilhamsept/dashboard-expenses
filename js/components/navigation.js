@@ -41,7 +41,7 @@ export class Navigation {
     const targetMap = {
       dashboard: "#dashboard",
       expenses: "#expenses",
-      investment: "#investment",
+      investment: "#investmentPage",
       cards: "#expenses",
       goals: "#goalWriter",
       insight: "#insight",
