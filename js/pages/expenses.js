@@ -179,7 +179,7 @@ export class ExpensesPage {
         const length = (item.value / total) * circumference;
         const gap = 9;
         const stroke = Math.max(length - gap, 0);
-        const circle = `<circle cx="120" cy="120" r="${radius}" fill="none" stroke="${item.color}" stroke-width="20" stroke-linecap="round" stroke-dasharray="${stroke} ${circumference - stroke}" stroke-dashoffset="${-offset}" transform="rotate(-90 120 120)"></circle>`;
+        const circle = `<circle cx="120" cy="120" r="${radius}" fill="none" stroke="${item.color}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${stroke} ${circumference - stroke}" stroke-dashoffset="${-offset}" transform="rotate(-90 120 120)"></circle>`;
         offset += length;
         return circle;
       })

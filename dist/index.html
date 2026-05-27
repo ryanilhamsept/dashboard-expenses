@@ -1,198 +1,264 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coinest Dashboard</title>
-    <script type="module" crossorigin src="/assets/index-Kewbv4D2.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-D66OA1WH.css">
-  </head>
-  <body>
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">C</div>
-        <span>COINEST</span>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anilhasept Dashboard</title>
+  <link rel="icon" type="image/png" href="/assets/logo-Bv-mB2GG.png" />
+  <script type="module" crossorigin src="/assets/index-DRfNxfVx.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BgU18YQe.css">
+</head>
+
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="/assets/logo-Bv-mB2GG.png" alt="Logo" class="brand-logo" />
+      <span>Anilhasept</span>
+    </div>
+
+    <nav class="nav" aria-label="Main menu">
+      <p>General</p>
+      <a class="active" href="#dashboard" data-view="dashboard"><span class="icon">▦</span> Dashboard</a>
+      <a href="#expenses" data-view="expenses"><span class="icon">↔</span> All Expenses</a>
+      <a href="#saving" data-view="saving" class="coming-soon" title="Fitur ini akan segera hadir!"><span
+          class="icon">▭</span> Saving</a>
+      <a href="#goals" data-view="goals"><span class="icon">◎</span> Goals</a>
+    </nav>
+
+  </aside>
+
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>Hi, Anilhasept <span>👋</span></h1>
+        <p>Track your expenses and transactions</p>
       </div>
+      <div class="top-actions">
+        <span id="clock" class="clock"></span>
+      </div>
+    </header>
 
-      <nav class="nav" aria-label="Main menu">
-        <p>General</p>
-        <a class="active" href="#dashboard" data-view="dashboard"><span class="icon">▦</span> Dashboard</a>
-        <a href="#expenses" data-view="expenses"><span class="icon">↔</span> All Expenses</a>
-        <a href="#cards" data-view="cards"><span class="icon">▭</span> Card</a>
-        <a href="#goals" data-view="goals"><span class="icon">◎</span> Goals</a>
-      </nav>
-
-    </aside>
-
-    <main class="shell">
-      <header class="topbar">
-        <div>
-          <h1>Hi, Ananya <span>👋</span></h1>
-          <p>Track your expenses and transactions</p>
+    <section id="dashboard" class="metrics" aria-label="Summary metrics">
+      <article class="metric metric-blue">
+        <div class="card-head">
+          <span class="badge blue">▣</span>
+          <h2>Uang Keluar (Sejak Jan 2025)</h2>
+          <button title="More">⋮</button>
         </div>
-        <div class="top-actions">
-            <span id="clock" class="clock"></span>
+        <strong id="balanceValue">Rp0</strong>
+        <small id="balanceTrend" class="trend up">Rata-rata: Rp0 / bulan</small>
+      </article>
+      <article class="metric metric-red dashboard-only">
+        <div class="card-head">
+          <span class="badge red">▤</span>
+          <h2>Monthly Expenses</h2>
+          <button title="More">⋮</button>
         </div>
-      </header>
+        <strong id="monthlyValue">Rp0</strong>
+        <small id="monthlyTrend" class="trend down">0% dari bulan lalu</small>
+      </article>
+      <article id="investment" class="metric metric-purple dashboard-only">
+        <div class="card-head">
+          <span class="badge purple">◍</span>
+          <h2>Total Investment</h2>
+          <button title="More">⋮</button>
+        </div>
+        <svg id="sparkline" viewBox="0 0 260 70" role="img" aria-label="Investment trend"></svg>
+        <strong id="investmentValue">Rp0</strong>
+      </article>
+      <article id="goals" class="metric metric-yellow dashboard-only">
+        <div class="card-head">
+          <span class="badge yellow">◎</span>
+          <h2>Goal</h2>
+          <button title="More">⋮</button>
+        </div>
+        <div id="goalSummaryList" class="goal-summary-list"></div>
+      </article>
+    </section>
 
-      <section id="dashboard" class="metrics" aria-label="Summary metrics">
-        <article class="metric metric-blue">
-          <div class="card-head">
-            <span class="badge blue">▣</span>
-            <h2>Uang Keluar (Sejak Jan 2025)</h2>
-            <button title="More">⋮</button>
+    <section id="goalWriter" class="goal-writer is-hidden" aria-label="Write goals">
+      <article class="panel">
+        <div class="panel-head">
+          <div class="title"><span class="badge yellow">◎</span>
+            <h2>Write Goal</h2>
           </div>
-          <strong id="balanceValue">Rp0</strong>
-          <small id="balanceTrend" class="trend up">Rata-rata: Rp0 / bulan</small>
-        </article>
-        <article class="metric metric-red dashboard-only">
-          <div class="card-head">
-            <span class="badge red">▤</span>
+        </div>
+        <form id="goalForm" class="goal-form">
+          <input id="goalEditingId" type="hidden" />
+          <label>
+            <span>Goal Name</span>
+            <input id="goalInputName" type="text" placeholder="Contoh: Beli laptop baru" />
+          </label>
+          <label>
+            <span>Target</span>
+            <input id="goalInputTarget" type="number" min="0" step="any" placeholder="145000" />
+          </label>
+          <label>
+            <span>Collected</span>
+            <input id="goalInputCollected" type="number" min="0" step="any" placeholder="75000" />
+          </label>
+          <label>
+            <span>Progress %</span>
+            <input id="goalInputProgress" type="number" min="0" max="100" step="any" placeholder="50" />
+          </label>
+          <button id="goalSubmitButton" type="submit">Save Goal</button>
+          <button id="goalAdd10kButton" class="secondary" type="button">+ Rp10k</button>
+          <button id="goalCancelButton" class="secondary is-hidden" type="button">Cancel</button>
+        </form>
+        <div id="goalList" class="goal-list" aria-label="Goal list"></div>
+      </article>
+    </section>
+
+    <section id="dashboardGrid" class="grid">
+      <article id="analytics" class="panel chart-panel dashboard-only">
+        <div class="panel-head">
+          <div class="title"><span class="badge red">▤</span>
             <h2>Monthly Expenses</h2>
+          </div>
+          <div class="panel-tools"><span id="chartTrend" class="trend up">0%</span><button>Recent⌄</button><button
+              title="More">⋮</button></div>
+        </div>
+        <div id="barChart" class="bar-chart" aria-label="Monthly expenses chart"></div>
+      </article>
+
+      <article id="insight" class="panel category-panel keep-in-expenses">
+        <div class="panel-head">
+          <div class="title"><span class="badge green">◇</span>
+            <h2>Top Category</h2>
+          </div>
+          <div class="panel-tools"><button>Recent⌄</button><button title="More">⋮</button></div>
+        </div>
+        <div class="category-body">
+          <svg id="donutChart" class="donut" viewBox="0 0 240 240" role="img" aria-label="Top category chart"></svg>
+          <div id="categoryLegend" class="legend"></div>
+        </div>
+      </article>
+
+      <!-- New Expenses-only panels for Daily Average and Source of Fund -->
+      <article id="dailyAveragePanel" class="panel chart-panel expenses-only is-hidden">
+        <div class="panel-head">
+          <div class="title"><span class="badge blue">▣</span>
+            <h2>Rata-rata Pengeluaran Harian</h2>
+          </div>
+          <div class="panel-tools"><span id="dailyAverageVal" class="trend up">Rp0 / hari</span></div>
+        </div>
+        <div id="dailyAverageChart" class="bar-chart bar-chart-daily" aria-label="Daily average spending chart"></div>
+      </article>
+
+      <article id="sourceOfFundPanel" class="panel category-panel expenses-only is-hidden">
+        <div class="panel-head">
+          <div class="title"><span class="badge purple">◍</span>
+            <h2>Source of Fund</h2>
+          </div>
+        </div>
+        <div class="category-body">
+          <svg id="sourceOfFundChart" class="donut" viewBox="0 0 240 240" role="img"
+            aria-label="Source of Fund Chart"></svg>
+          <div id="sourceOfFundLegend" class="legend"></div>
+        </div>
+      </article>
+
+      <article id="expenses" class="panel table-panel">
+        <div class="panel-head">
+          <div class="title"><span class="badge blue">↔</span>
+            <h2>Recent Expenses</h2>
+          </div>
+          <div class="panel-tools">
+            <button>Filter</button>
+            <button>Recent⌄</button>
             <button title="More">⋮</button>
           </div>
-          <strong id="monthlyValue">Rp0</strong>
-          <small id="monthlyTrend" class="trend down">0% dari bulan lalu</small>
-        </article>
-        <article id="investment" class="metric metric-purple dashboard-only">
-          <div class="card-head">
-            <span class="badge purple">◍</span>
-            <h2>Total Investment</h2>
-            <button title="More">⋮</button>
-          </div>
-          <svg id="sparkline" viewBox="0 0 260 70" role="img" aria-label="Investment trend"></svg>
-          <strong id="investmentValue">Rp0</strong>
-        </article>
-        <article id="goals" class="metric metric-yellow dashboard-only">
-          <div class="card-head">
-            <span class="badge yellow">◎</span>
-            <h2>Goal</h2>
-            <button title="More">⋮</button>
-          </div>
-          <div id="goalSummaryList" class="goal-summary-list"></div>
-        </article>
-      </section>
+        </div>
+        <form id="sheetConfig" class="sheet-config is-hidden">
+          <input id="sheetUrl" type="url" placeholder="Paste Apps Script Web App URL" />
+          <button type="submit">Save URL</button>
+          <button id="sheetCancelButton" type="button">Cancel</button>
+        </form>
+        <p id="syncStatus" class="sync-status"></p>
+        <div id="tableLoading" class="table-loading is-hidden">
+          <span class="loading-spinner"></span>
+          <strong>Loading latest sheet data...</strong>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Keterangan</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Ambil</th>
+                <th>Source of Fund</th>
+              </tr>
+            </thead>
+            <tbody id="recentRows"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <button id="prevPageButton" type="button">Previous</button>
+          <span id="pageInfo">Page 1 of 1</span>
+          <button id="nextPageButton" type="button">Next</button>
+        </div>
+      </article>
 
-      <section id="goalWriter" class="goal-writer is-hidden" aria-label="Write goals">
-        <article class="panel">
-          <div class="panel-head">
-            <div class="title"><span class="badge yellow">◎</span><h2>Write Goal</h2></div>
-          </div>
-          <form id="goalForm" class="goal-form">
-            <input id="goalEditingId" type="hidden" />
-            <label>
-              <span>Goal Name</span>
-              <input id="goalInputName" type="text" placeholder="Contoh: Beli laptop baru" />
-            </label>
-            <label>
-              <span>Target</span>
-              <input id="goalInputTarget" type="number" min="0" step="any" placeholder="145000" />
-            </label>
-            <label>
-              <span>Collected</span>
-              <input id="goalInputCollected" type="number" min="0" step="any" placeholder="75000" />
-            </label>
-            <label>
-              <span>Progress %</span>
-              <input id="goalInputProgress" type="number" min="0" max="100" step="any" placeholder="50" />
-            </label>
-            <button id="goalSubmitButton" type="submit">Save Goal</button>
-            <button id="goalAdd10kButton" class="secondary" type="button">+ Rp10k</button>
-            <button id="goalCancelButton" class="secondary is-hidden" type="button">Cancel</button>
-          </form>
-          <div id="goalList" class="goal-list" aria-label="Goal list"></div>
-        </article>
-      </section>
 
-      <section id="dashboardGrid" class="grid">
-        <article id="analytics" class="panel chart-panel dashboard-only">
-          <div class="panel-head">
-            <div class="title"><span class="badge red">▤</span><h2>Monthly Expenses</h2></div>
-            <div class="panel-tools"><span id="chartTrend" class="trend up">0%</span><button>Recent⌄</button><button title="More">⋮</button></div>
-          </div>
-          <div id="barChart" class="bar-chart" aria-label="Monthly expenses chart"></div>
-        </article>
+    </section>
+  </main>
 
-        <article id="insight" class="panel category-panel keep-in-expenses">
-          <div class="panel-head">
-            <div class="title"><span class="badge green">◇</span><h2>Top Category</h2></div>
-            <div class="panel-tools"><button>Recent⌄</button><button title="More">⋮</button></div>
-          </div>
-          <div class="category-body">
-            <svg id="donutChart" class="donut" viewBox="0 0 240 240" role="img" aria-label="Top category chart"></svg>
-            <div id="categoryLegend" class="legend"></div>
-          </div>
-        </article>
+  <!-- Beautiful Premium Glassmorphic Modal for Savings -->
+  <div id="savingsModal" class="modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-icon">💰</span>
+        <h2 id="modalTitle">Saving Feature</h2>
+      </div>
+      <div class="modal-body">
+        <p>Fitur <strong>Saving & Tabungan otomatis</strong> akan segera hadir untuk membantu Anda menyisihkan dana
+          lebih mudah! Nantikan pembaruan berikutnya. 🚀</p>
+      </div>
+      <div class="modal-footer">
+        <button id="closeModalButton" class="modal-btn" type="button">Oke, Siap!</button>
+      </div>
+    </div>
+  </div>
 
-        <!-- New Expenses-only panels for Daily Average and Source of Fund -->
-        <article id="dailyAveragePanel" class="panel chart-panel expenses-only is-hidden">
-          <div class="panel-head">
-            <div class="title"><span class="badge blue">▣</span><h2>Rata-rata Pengeluaran Harian</h2></div>
-            <div class="panel-tools"><span id="dailyAverageVal" class="trend up">Rp0 / hari</span></div>
-          </div>
-          <div id="dailyAverageChart" class="bar-chart bar-chart-daily" aria-label="Daily average spending chart"></div>
-        </article>
+  <!-- Lock Screen Overlay -->
+  <div id="lockScreen" class="lock-overlay">
+    <div class="lock-card">
+      <div class="lock-logo">
+        <img src="/assets/logo-Bv-mB2GG.png" alt="Logo" class="brand-logo" />
+        <span>Anilhasept</span>
+      </div>
+      <h2 id="lockTitle">Enter Passcode</h2>
+      <p id="lockSubtitle" class="lock-subtitle">Masukkan 4-digit PIN untuk mengakses dashboard keuangan Anda.</p>
+      
+      <div class="pin-display">
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+      </div>
+      
+      <p id="lockError" class="lock-error is-hidden">PIN salah, silakan coba lagi.</p>
+      
+      <div class="pin-keypad">
+        <button type="button" class="key" data-value="1">1</button>
+        <button type="button" class="key" data-value="2">2</button>
+        <button type="button" class="key" data-value="3">3</button>
+        <button type="button" class="key" data-value="4">4</button>
+        <button type="button" class="key" data-value="5">5</button>
+        <button type="button" class="key" data-value="6">6</button>
+        <button type="button" class="key" data-value="7">7</button>
+        <button type="button" class="key" data-value="8">8</button>
+        <button type="button" class="key" data-value="9">9</button>
+        <button type="button" class="key danger" data-value="clear">C</button>
+        <button type="button" class="key" data-value="0">0</button>
+        <button type="button" class="key secondary" data-value="back">⌫</button>
+      </div>
+    </div>
+  </div>
 
-        <article id="sourceOfFundPanel" class="panel category-panel expenses-only is-hidden">
-          <div class="panel-head">
-            <div class="title"><span class="badge purple">◍</span><h2>Source of Fund</h2></div>
-          </div>
-          <div class="category-body">
-            <svg id="sourceOfFundChart" class="donut" viewBox="0 0 240 240" role="img" aria-label="Source of Fund Chart"></svg>
-            <div id="sourceOfFundLegend" class="legend"></div>
-          </div>
-        </article>
+</body>
 
-        <article id="expenses" class="panel table-panel">
-          <div class="panel-head">
-            <div class="title"><span class="badge blue">↔</span><h2>Recent Expenses</h2></div>
-            <div class="panel-tools">
-              <button>Filter</button>
-              <button>Recent⌄</button>
-              <button title="More">⋮</button>
-            </div>
-          </div>
-          <form id="sheetConfig" class="sheet-config is-hidden">
-            <input id="sheetUrl" type="url" placeholder="Paste Apps Script Web App URL" />
-            <button type="submit">Save URL</button>
-            <button id="sheetCancelButton" type="button">Cancel</button>
-          </form>
-          <p id="syncStatus" class="sync-status"></p>
-          <div id="tableLoading" class="table-loading is-hidden">
-            <span class="loading-spinner"></span>
-            <strong>Loading latest sheet data...</strong>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Keterangan</th>
-                  <th>Category</th>
-                  <th>Amount</th>
-                  <th>Ambil</th>
-                  <th>Source of Fund</th>
-                </tr>
-              </thead>
-              <tbody id="recentRows"></tbody>
-            </table>
-          </div>
-          <div class="pagination">
-            <button id="prevPageButton" type="button">Previous</button>
-            <span id="pageInfo">Page 1 of 1</span>
-            <button id="nextPageButton" type="button">Next</button>
-          </div>
-        </article>
-
-        <article class="panel bill-panel dashboard-only">
-          <div class="panel-head">
-            <div class="title"><span class="badge yellow">▤</span><h2>Bill & Subscription</h2></div>
-            <button title="More">⋮</button>
-          </div>
-          <div id="billList" class="bill-list"></div>
-        </article>
-      </section>
-    </main>
-
-  </body>
 </html>

@@ -830,6 +830,7 @@ input {
 
 .bar-track {
   height: 100%;
+  width: 100%;
   border-radius: 15px;
   background: #e2e8f0;
   position: relative;
@@ -882,8 +883,8 @@ input {
 }
 
 .legend-row span:first-child {
-  width: 8px;
-  height: 26px;
+  width: 5px;
+  height: 16px;
   border-radius: 999px;
   background: var(--color);
 }
