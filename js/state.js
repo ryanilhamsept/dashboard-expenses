@@ -14,7 +14,7 @@ export class AppState {
   loadState() {
     let url = localStorage.getItem("expenseDashboardSheetUrl") || "";
     if (!url.startsWith("https://script.google.com")) {
-      url = "https://script.google.com/macros/s/AKfycbwqU7YTDyvaXT8cW9cbWGYhVzxFR65g1eBT7Sej7L8u7mgAbrxT2G8DiCeoW46_4BbAuw/exec";
+      url = "https://script.google.com/macros/s/AKfycbzINIMQ6VNoUsJhUmYwdLOWkNuDgj0vMKhMLVY1hACxtIpQy8JB0AHlh9YC8P2lSb1QYg/exec";
     }
     this.sheetDataUrl = url;
     this.transactionPage = 1;
