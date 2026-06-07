@@ -31,6 +31,10 @@ export class AppState {
     ).map(this.createGoal);
 
     this.activeGoalId = localStorage.getItem("expenseDashboardActiveGoal") || (this.goals[0] ? this.goals[0].id : "");
+
+    // Load local edits and deletes for expenses
+    this.editedRows = JSON.parse(localStorage.getItem("expenseDashboardEditedRows") || "{}");
+    this.deletedRowIds = JSON.parse(localStorage.getItem("expenseDashboardDeletedRowIds") || "[]");
   }
 
   createGoal(goal) {
@@ -67,7 +71,40 @@ export class AppState {
   }
 
   setRows(newRows) {
-    this.rows = newRows;
+    // Apply local edits and filter out deleted rows
+    const mergedRows = newRows.map((row) => {
+      if (this.editedRows[row.id]) {
+        return { ...row, ...this.editedRows[row.id] };
+      }
+      return row;
+    });
+
+    const activeRows = mergedRows.filter((row) => !this.deletedRowIds.includes(row.id));
+
+    this.rows = activeRows;
+    this.notify();
+  }
+
+  updateExpense(id, updatedFields) {
+    this.editedRows[id] = { ...this.editedRows[id], ...updatedFields };
+    localStorage.setItem("expenseDashboardEditedRows", JSON.stringify(this.editedRows));
+
+    this.rows = this.rows.map((row) => {
+      if (row.id === id) {
+        return { ...row, ...updatedFields };
+      }
+      return row;
+    });
+    this.notify();
+  }
+
+  deleteExpense(id) {
+    if (!this.deletedRowIds.includes(id)) {
+      this.deletedRowIds.push(id);
+      localStorage.setItem("expenseDashboardDeletedRowIds", JSON.stringify(this.deletedRowIds));
+    }
+
+    this.rows = this.rows.filter((row) => row.id !== id);
     this.notify();
   }
 

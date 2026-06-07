@@ -4,6 +4,9 @@ export class ExpensesPage {
   constructor(state, sheetService) {
     this.state = state;
     this.sheetService = sheetService;
+    this.editingRowId = null;
+    this.lastView = "";
+    this.lastPage = 1;
   }
 
   init() {
@@ -98,6 +101,70 @@ export class ExpensesPage {
         }
       });
     }
+
+    if (this.recentRowsEl) {
+      this.recentRowsEl.addEventListener("click", (event) => {
+        const target = event.target;
+        
+        const editBtn = target.closest(".edit-btn");
+        if (editBtn) {
+          this.editingRowId = editBtn.dataset.id;
+          this.render();
+          return;
+        }
+
+        const cancelBtn = target.closest(".cancel-btn");
+        if (cancelBtn) {
+          this.editingRowId = null;
+          this.render();
+          return;
+        }
+
+        const deleteBtn = target.closest(".delete-btn");
+        if (deleteBtn) {
+          const id = deleteBtn.dataset.id;
+          if (confirm("Apakah Anda yakin ingin menghapus transaksi ini?")) {
+            this.state.deleteExpense(id);
+            this.sheetService?.deleteExpense(id);
+          }
+          return;
+        }
+
+        const saveBtn = target.closest(".save-btn");
+        if (saveBtn) {
+          const id = saveBtn.dataset.id;
+          const rowEl = saveBtn.closest("tr");
+          if (rowEl) {
+            const dateInput = rowEl.querySelector(".edit-date");
+            const subcategoryInput = rowEl.querySelector(".edit-subcategory");
+            const categorySelect = rowEl.querySelector(".edit-category");
+            const amountInput = rowEl.querySelector(".edit-amount");
+            const ambilSelect = rowEl.querySelector(".edit-ambil");
+            const modeSelect = rowEl.querySelector(".edit-mode");
+
+            const updatedFields = {
+              date: dateInput.value,
+              subcategory: subcategoryInput.value.trim() || "-",
+              category: categorySelect.value,
+              amount: Math.abs(Number(amountInput.value)) || 0,
+              ambil: ambilSelect.value,
+              mode: modeSelect.value,
+            };
+
+            this.state.updateExpense(id, updatedFields);
+
+            const updatedTransaction = this.state.rows.find((r) => r.id === id);
+            if (updatedTransaction) {
+              this.sheetService?.updateExpense(updatedTransaction);
+            }
+
+            this.editingRowId = null;
+            this.render();
+          }
+          return;
+        }
+      });
+    }
   }
 
   setSyncStatus(message, isError = false) {
@@ -186,6 +253,17 @@ export class ExpensesPage {
       .join("");
   }
 
+  renderIcon(name) {
+    const icons = {
+      edit: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="m16.5 3.5 4 4L7 21H3v-4L16.5 3.5Z"></path></svg>',
+      delete: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>',
+      save: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>',
+      cancel: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>'
+    };
+
+    return icons[name] || "";
+  }
+
   renderSourceOfFundLegend(fundData) {
     if (!this.sourceOfFundLegendEl) return;
     this.sourceOfFundLegendEl.innerHTML = fundData
@@ -202,6 +280,17 @@ export class ExpensesPage {
 
   render() {
     const { rows, currentView } = this.state;
+    
+    if (currentView !== this.lastView) {
+      this.editingRowId = null;
+    }
+    this.lastView = currentView;
+
+    if (this.state.transactionPage !== this.lastPage) {
+      this.editingRowId = null;
+    }
+    this.lastPage = this.state.transactionPage;
+
     const sorted = [...rows].sort(compareExpensesByNewest);
     const expenses = sorted.filter((row) => !["income", "investment"].includes(row.type));
 
@@ -280,18 +369,65 @@ export class ExpensesPage {
     }
 
     if (this.recentRowsEl) {
+      const uniqueCats = Array.from(new Set(this.state.rows.map(r => r.category))).filter(Boolean);
+      const categoriesList = uniqueCats.length ? uniqueCats : ["Food", "Transportation", "Shopping", "Health", "Utilities", "Account Transfer", "Groceries", "Entertainment", "Internet", "Education", "Miscellaneous"];
+
+      const uniqueAmbils = Array.from(new Set(this.state.rows.map(r => r.ambil))).filter(Boolean);
+      const ambilsList = uniqueAmbils.length ? uniqueAmbils : ["Spend Bulanan", "Ambil dari tabungan", "Other"];
+
+      const uniqueModes = Array.from(new Set(this.state.rows.map(r => r.mode))).filter(Boolean);
+      const modesList = uniqueModes.length ? uniqueModes : ["Mandiri", "BCA", "Credit Card", "Blu", "Superbank"];
+
       this.recentRowsEl.innerHTML = pageRows
-        .map(
-          (row) => `
-            <tr>
-              <td>${displayDate(row.date)}</td>
-              <td>${row.subcategory}</td>
-              <td>${row.category}</td>
-              <td>${formatMoney(row.amount)}</td>
-              <td>${row.ambil || "-"}</td>
-              <td>${row.mode}</td>
-            </tr>`
-        )
+        .map((row) => {
+          const isEditing = this.editingRowId === row.id;
+          if (isEditing) {
+            const dateVal = parseDateValue(row.date).toISOString().slice(0, 10);
+            return `
+              <tr class="editing-row" data-id="${row.id}">
+                <td><input type="date" class="edit-date" value="${dateVal}"></td>
+                <td><input type="text" class="edit-subcategory" value="${row.subcategory}"></td>
+                <td>
+                  <select class="edit-category">
+                    ${categoriesList.map(c => `<option value="${c}" ${c === row.category ? 'selected' : ''}>${c}</option>`).join('')}
+                  </select>
+                </td>
+                <td><input type="number" class="edit-amount" value="${row.amount}" min="0"></td>
+                <td>
+                  <select class="edit-ambil">
+                    ${ambilsList.map(a => `<option value="${a}" ${a === row.ambil ? 'selected' : ''}>${a}</option>`).join('')}
+                  </select>
+                </td>
+                <td>
+                  <select class="edit-mode">
+                    ${modesList.map(m => `<option value="${m}" ${m === row.mode ? 'selected' : ''}>${m}</option>`).join('')}
+                  </select>
+                </td>
+                <td class="actions-col">
+                  <div class="row-actions">
+                    <button type="button" class="action-icon-btn save-btn" data-id="${row.id}" title="Save" aria-label="Save transaction">${this.renderIcon("save")}</button>
+                    <button type="button" class="action-icon-btn cancel-btn" data-id="${row.id}" title="Cancel" aria-label="Cancel editing">${this.renderIcon("cancel")}</button>
+                  </div>
+                </td>
+              </tr>`;
+          } else {
+            return `
+              <tr data-id="${row.id}">
+                <td>${displayDate(row.date)}</td>
+                <td>${row.subcategory}</td>
+                <td>${row.category}</td>
+                <td>${formatMoney(row.amount)}</td>
+                <td>${row.ambil || "-"}</td>
+                <td>${row.mode}</td>
+                <td class="actions-col">
+                  <div class="row-actions">
+                    <button type="button" class="action-icon-btn edit-btn" data-id="${row.id}" title="Edit" aria-label="Edit transaction">${this.renderIcon("edit")}</button>
+                    <button type="button" class="action-icon-btn delete-btn" data-id="${row.id}" title="Delete" aria-label="Delete transaction">${this.renderIcon("delete")}</button>
+                  </div>
+                </td>
+              </tr>`;
+          }
+        })
         .join("");
     }
 

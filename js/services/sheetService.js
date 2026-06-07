@@ -96,4 +96,48 @@ export class SheetService {
       console.error("[SheetService] Failed to sync goals in background:", error);
     }
   }
+
+  async updateExpense(transaction) {
+    const { sheetDataUrl } = this.state;
+    if (!sheetDataUrl) return;
+
+    try {
+      console.log("[SheetService] Syncing expense update to Google Sheet in the background...", transaction);
+      const params = new URLSearchParams({
+        action: "update",
+        id: transaction.id,
+        date: transaction.date,
+        notes: transaction.subcategory,
+        category: transaction.category,
+        nominal: String(transaction.amount),
+        ambil: transaction.ambil,
+        sof: transaction.mode,
+      });
+      const syncUrl = `${sheetDataUrl}${sheetDataUrl.includes("?") ? "&" : "?"}${params.toString()}`;
+
+      const response = await fetch(syncUrl);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      console.log("[SheetService] Background Expense update response:", text);
+    } catch (error) {
+      console.error("[SheetService] Failed to update expense in background:", error);
+    }
+  }
+
+  async deleteExpense(id) {
+    const { sheetDataUrl } = this.state;
+    if (!sheetDataUrl) return;
+
+    try {
+      console.log("[SheetService] Syncing expense deletion to Google Sheet in the background...", id);
+      const syncUrl = `${sheetDataUrl}${sheetDataUrl.includes("?") ? "&" : "?"}action=delete&id=${encodeURIComponent(id)}`;
+
+      const response = await fetch(syncUrl);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      console.log("[SheetService] Background Expense deletion response:", text);
+    } catch (error) {
+      console.error("[SheetService] Failed to delete expense in background:", error);
+    }
+  }
 }

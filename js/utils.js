@@ -104,8 +104,12 @@ export const normalizeRow = (row, index = 0) => {
     (String(category).toLowerCase().includes("investment") ? "investment" : "") ||
     (String(category).toLowerCase().includes("subscription") ? "bill" : "expense");
 
+  const rowNumber = Number(row.rowNumber || row.row_number || index || 0);
+  const id = pick(row, ["id", "uuid", "transactionid"]) || `tx-${rowNumber}`;
+
   return {
-    rowNumber: Number(row.rowNumber || row.row_number || index || 0),
+    id,
+    rowNumber,
     date: pick(row, ["date", "tanggal", "createdat", "waktu"]) || new Date().toISOString().slice(0, 10),
     amount: Math.abs(parseAmount(pick(row, amountKeys))),
     category,
