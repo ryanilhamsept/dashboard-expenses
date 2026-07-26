@@ -44,29 +44,31 @@ export class GoalsPage {
           ? parseAmount(this.goalInputCollectedEl?.value) 
           : Math.round((required * progress) / 100);
 
+        let savedGoal;
         if (this.editingGoalId) {
           // Update existing
-          const updatedGoal = this.state.createGoal({
+          savedGoal = this.state.createGoal({
             id: this.editingGoalId,
             name,
             required,
             collected
           });
-          this.state.goals = this.state.goals.map((g) => (g.id === this.editingGoalId ? updatedGoal : g));
-          this.state.activeGoalId = updatedGoal.id;
+          this.state.goals = this.state.goals.map((g) => (g.id === this.editingGoalId ? savedGoal : g));
+          this.state.activeGoalId = savedGoal.id;
           this.editingGoalId = null;
         } else {
           // Add new
-          const nextGoal = this.state.createGoal({
+          savedGoal = this.state.createGoal({
             name,
             required,
             collected
           });
-          this.state.goals = [nextGoal, ...this.state.goals];
-          this.state.activeGoalId = nextGoal.id;
+          this.state.goals = [savedGoal, ...this.state.goals];
+          this.state.activeGoalId = savedGoal.id;
         }
 
         this.state.saveGoals();
+        this.supabaseService?.upsertGoal(savedGoal);
         this.supabaseService?.syncGoals(this.state.goals);
         this.clearForm();
         this.state.notify();
@@ -98,6 +100,7 @@ export class GoalsPage {
               this.clearForm();
             }
             this.state.saveGoals();
+            this.supabaseService?.deleteGoal(selectedGoalId);
             this.supabaseService?.syncGoals(this.state.goals);
             this.state.notify();
           }

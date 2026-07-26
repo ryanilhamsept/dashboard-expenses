@@ -6,6 +6,7 @@ import { ExpensesPage } from './js/pages/expenses.js';
 import { AnalyticsPage } from './js/pages/analytics.js';
 import { BillsPage } from './js/pages/bills.js';
 import { GoalsPage } from './js/pages/goals.js';
+import { SavingPage } from './js/pages/saving.js';
 import { InvestmentPage } from './js/pages/investment.js';
 import { LockScreen } from './js/components/auth.js';
 
@@ -21,6 +22,7 @@ class App {
     this.analyticsPage = new AnalyticsPage(this.state);
     this.billsPage = new BillsPage(this.state);
     this.goalsPage = new GoalsPage(this.state, this.supabaseService);
+    this.savingPage = new SavingPage(this.state, this.supabaseService);
     this.investmentPage = new InvestmentPage(this.state);
     this.lockScreen = new LockScreen(this.state, this.supabaseService);
     
@@ -40,6 +42,7 @@ class App {
     this.analyticsPage.init();
     this.billsPage.init();
     this.goalsPage.init();
+    this.savingPage.init();
     this.investmentPage.init();
 
     // Subscribe pages to state changes
@@ -52,6 +55,7 @@ class App {
       if (user && !this.wasLoggedIn) {
         this.wasLoggedIn = true;
         this.supabaseService.syncData();
+        this.loadGoalsFromSupabase();
       } else if (!user) {
         this.wasLoggedIn = false;
         // Reset rows to clear UI on logout
@@ -92,6 +96,21 @@ class App {
     this.render();
   }
 
+  async loadGoalsFromSupabase() {
+    const remoteGoals = await this.supabaseService.fetchGoals();
+    if (remoteGoals === null) return; // fetch failed, keep local goals
+
+    if (remoteGoals.length > 0) {
+      this.state.goals = remoteGoals;
+      this.state.activeGoalId = remoteGoals[0].id;
+      this.state.saveGoals();
+      this.state.notify();
+    } else if (this.state.goals.length > 0) {
+      // First-time migration: push existing local goals up to Supabase
+      this.state.goals.forEach((goal) => this.supabaseService.upsertGoal(goal));
+    }
+  }
+
   initClock() {
     const clockEl = document.querySelector("#clock");
     if (!clockEl) return;
@@ -115,10 +134,11 @@ class App {
     const isAllExpensesView = currentView === "expenses";
     const isInvestmentView = currentView === "investment";
     const isGoalsView = currentView === "goals";
+    const isSavingView = currentView === "saving";
 
     // Global layout toggles
     document.querySelectorAll(".dashboard-only").forEach((item) => {
-      item.classList.toggle("is-hidden", isAllExpensesView || isInvestmentView || isGoalsView);
+      item.classList.toggle("is-hidden", isAllExpensesView || isInvestmentView || isGoalsView || isSavingView);
     });
     document.querySelectorAll(".expenses-only").forEach((item) => {
       item.classList.toggle("is-hidden", !isAllExpensesView);
@@ -130,7 +150,7 @@ class App {
     const gridEl = document.querySelector("#dashboardGrid");
 
     if (metricsEl) {
-      metricsEl.classList.toggle("is-hidden", isGoalsView || isInvestmentView);
+      metricsEl.classList.toggle("is-hidden", isGoalsView || isInvestmentView || isSavingView);
     }
 
     if (isAllExpensesView) {
@@ -156,16 +176,17 @@ class App {
     this.billsPage.render();
     this.goalsPage.render();
     this.investmentPage.render();
+    this.savingPage.render();
 
     // Centralized visibility overrides to ensure correct active page
     const goalWriterEl = document.querySelector("#goalWriter");
     const investmentPageEl = document.querySelector("#investmentPage");
 
     if (metricsEl) {
-      metricsEl.classList.toggle("is-hidden", isGoalsView || isInvestmentView);
+      metricsEl.classList.toggle("is-hidden", isGoalsView || isInvestmentView || isSavingView);
     }
     if (gridEl) {
-      gridEl.classList.toggle("is-hidden", isGoalsView || isInvestmentView);
+      gridEl.classList.toggle("is-hidden", isGoalsView || isInvestmentView || isSavingView);
     }
     if (goalWriterEl) {
       goalWriterEl.classList.toggle("is-hidden", !isGoalsView);

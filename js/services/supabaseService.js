@@ -96,7 +96,7 @@ export class SupabaseService {
       let hasMore = true;
 
       while (hasMore) {
-        const { data, error } = await this.reader
+        const { data, error } = await this.supabase
           .from("transactions")
           .select("*")
           .order("date", { ascending: false })
@@ -210,6 +210,53 @@ export class SupabaseService {
       action: "saveGoals",
       goals: JSON.stringify(goals)
     });
+  }
+
+  async fetchGoals() {
+    try {
+      const { data, error } = await this.supabase
+        .from("goals")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      return (data || []).map((g) => ({
+        id: g.id,
+        name: g.name,
+        required: Number(g.required) || 1,
+        collected: Number(g.collected) || 0
+      }));
+    } catch (error) {
+      console.error("[SupabaseService] Failed to fetch goals:", error);
+      return null;
+    }
+  }
+
+  async upsertGoal(goal) {
+    try {
+      const { error } = await this.supabase
+        .from("goals")
+        .upsert({
+          id: goal.id,
+          name: goal.name,
+          required: goal.required,
+          collected: goal.collected,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("[SupabaseService] Failed to upsert goal:", error);
+    }
+  }
+
+  async deleteGoal(id) {
+    try {
+      const { error } = await this.supabase.from("goals").delete().eq("id", id);
+      if (error) throw error;
+    } catch (error) {
+      console.error("[SupabaseService] Failed to delete goal:", error);
+    }
   }
 
   async mirrorToGoogleSheets(paramsObj) {

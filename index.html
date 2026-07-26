@@ -20,7 +20,7 @@
       <p>General</p>
       <a class="active" href="#dashboard" data-view="dashboard"><span class="icon">▦</span> Dashboard</a>
       <a href="#expenses" data-view="expenses"><span class="icon">↔</span> All Expenses</a>
-      <a href="#saving" data-view="saving" class="coming-soon" title="Fitur ini akan segera hadir!"><span
+      <a href="#saving" data-view="saving"><span
           class="icon">▭</span> Saving</a>
       <a href="#goals" data-view="goals"><span class="icon">◎</span> Goals</a>
       <a href="#investment" data-view="investment"><span class="icon">📈</span> Investment</a>
@@ -220,6 +220,31 @@
     <!-- Premium Investment Page Section -->
     <section id="investmentPage" class="investment-page is-hidden" aria-label="Investment analysis">
       <!-- Will be populated dynamically by the InvestmentPage module -->
+    </section>
+
+    <!-- Saving Page -->
+    <section id="savingPage" class="saving-page is-hidden">
+      <div class="saving-header">
+        <div>
+          <h2>💰 Saving & Accounts</h2>
+          <p id="savingSubtitle">Kelola saldo rekening dan tabungan Anda.</p>
+        </div>
+        <div class="saving-total">
+          <span>Total Balance</span>
+          <h1 id="savingTotalBalance">Rp 0</h1>
+        </div>
+      </div>
+
+      <div id="savingAccountsGrid" class="saving-accounts-grid">
+        <!-- Account cards will be rendered here -->
+      </div>
+
+      <div id="savingEmpty" class="saving-empty is-hidden">
+        <div class="saving-empty-icon">🏦</div>
+        <h3>Belum ada akun</h3>
+        <p>Tambahkan akun bank atau tabungan Anda melalui Supabase Dashboard di tabel <code>accounts</code>.</p>
+        <p style="margin-top: 8px; font-size: 13px; color: #94a3b8;">Kolom: <code>id</code>, <code>name</code>, <code>type</code>, <code>starting_balance</code></p>
+      </div>
     </section>
   </main>
 
