@@ -7,6 +7,7 @@ export class AppState {
     this.currentView = "dashboard";
     this.goals = [];
     this.activeGoalId = "";
+    this.user = null;
 
     this.loadState();
   }
@@ -110,6 +111,11 @@ export class AppState {
 
   setView(view) {
     this.currentView = view;
+    this.notify();
+  }
+
+  setUser(user) {
+    this.user = user;
     this.notify();
   }
 }

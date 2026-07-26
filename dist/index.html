@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Anilhasept Dashboard</title>
   <link rel="icon" type="image/png" href="/assets/logo-Bv-mB2GG.png" />
-  <script type="module" crossorigin src="/assets/index-CkjGEmlO.js"></script>
+  <script type="module" crossorigin src="/assets/index-Di8yHacH.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-DeWxi_-P.css">
 </head>
 
@@ -25,6 +25,9 @@
           class="icon">▭</span> Saving</a>
       <a href="#goals" data-view="goals"><span class="icon">◎</span> Goals</a>
       <a href="#investment" data-view="investment"><span class="icon">📈</span> Investment</a>
+
+      <p style="margin-top: 30px;">Account</p>
+      <a href="#logout" id="logoutSidebarBtn" style="color: var(--red);"><span class="icon">⎋</span> Log Out</a>
     </nav>
 
   </aside>
@@ -177,6 +180,13 @@
           <button id="sheetCancelButton" type="button">Cancel</button>
         </form>
         <p id="syncStatus" class="sync-status"></p>
+        <div id="supabaseImportBanner" class="import-banner is-hidden" style="background: rgba(0, 180, 216, 0.08); border: 1px dashed #00b4d8; border-radius: 16px; padding: 16px; margin: 10px 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+          <div style="text-align: left;">
+            <strong style="display: block; font-size: 14px; color: #fff; margin-bottom: 4px;">Pindahkan Data Sheet lama?</strong>
+            <span style="font-size: 12px; color: #94a3b8;">Database Supabase Anda masih kosong. Salin transaksi dari Google Sheets sekarang.</span>
+          </div>
+          <button id="startImportBtn" type="button" style="padding: 8px 16px; font-size: 13px; font-weight: 700; border-radius: 8px; border: none; background: #00b4d8; color: #fff; cursor: pointer; white-space: nowrap;">Import Data</button>
+        </div>
         <div id="tableLoading" class="table-loading is-hidden">
           <span class="loading-spinner"></span>
           <strong>Loading latest sheet data...</strong>
@@ -237,31 +247,28 @@
         <img src="/assets/logo-Bv-mB2GG.png" alt="Logo" class="brand-logo" />
         <span>Anilhasept</span>
       </div>
-      <h2 id="lockTitle">Enter Passcode</h2>
-      <p id="lockSubtitle" class="lock-subtitle">Masukkan 4-digit PIN untuk mengakses dashboard keuangan Anda.</p>
+      <h2 id="lockTitle">Sign In</h2>
+      <p id="lockSubtitle" class="lock-subtitle">Masuk menggunakan username dan password Anda.</p>
       
-      <div class="pin-display">
-        <span class="pin-dot"></span>
-        <span class="pin-dot"></span>
-        <span class="pin-dot"></span>
-        <span class="pin-dot"></span>
-      </div>
+      <form id="loginForm" class="login-form">
+        <div class="form-group" style="margin-bottom: 16px; text-align: left;">
+          <label for="loginUsername" style="display: block; font-size: 11px; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Username</label>
+          <input id="loginUsername" type="text" required placeholder="Masukkan username" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); color: #fff; background: rgba(255,255,255,0.05); outline: none; font-size: 14px;" />
+        </div>
+        <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+          <label for="loginPassword" style="display: block; font-size: 11px; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Password</label>
+          <input id="loginPassword" type="password" required placeholder="••••••••" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); color: #fff; background: rgba(255,255,255,0.05); outline: none; font-size: 14px;" />
+        </div>
+        
+        <p id="lockError" class="lock-error is-hidden" style="margin-top: -10px; margin-bottom: 15px; font-size: 13px; color: #fb7185; font-weight: 700;"></p>
+        
+        <button id="loginSubmitBtn" type="submit" style="width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%); border: none; color: #fff; font-weight: 700; cursor: pointer; transition: opacity 0.2s; font-size: 15px;">Masuk</button>
+      </form>
       
-      <p id="lockError" class="lock-error is-hidden">PIN salah, silakan coba lagi.</p>
-      
-      <div class="pin-keypad">
-        <button type="button" class="key" data-value="1">1</button>
-        <button type="button" class="key" data-value="2">2</button>
-        <button type="button" class="key" data-value="3">3</button>
-        <button type="button" class="key" data-value="4">4</button>
-        <button type="button" class="key" data-value="5">5</button>
-        <button type="button" class="key" data-value="6">6</button>
-        <button type="button" class="key" data-value="7">7</button>
-        <button type="button" class="key" data-value="8">8</button>
-        <button type="button" class="key" data-value="9">9</button>
-        <button type="button" class="key danger" data-value="clear">C</button>
-        <button type="button" class="key" data-value="0">0</button>
-        <button type="button" class="key secondary" data-value="back">⌫</button>
+      <div class="auth-toggle-box" style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+        <p style="font-size: 13px; color: #94a3b8; margin: 0;">
+          <span id="toggleText">Belum memiliki akun?</span> <button id="toggleAuthModeBtn" type="button" style="background: none; border: none; color: #00b4d8; font-weight: 700; cursor: pointer; padding: 0; font-size: 13px;">Buat Akun Baru</button>
+        </p>
       </div>
     </div>
   </div>

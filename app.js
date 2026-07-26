@@ -1,5 +1,5 @@
 import { AppState } from './js/state.js';
-import { SheetService } from './js/services/sheetService.js';
+import { SupabaseService } from './js/services/supabaseService.js';
 import { Navigation } from './js/components/navigation.js';
 import { DashboardPage } from './js/pages/dashboard.js';
 import { ExpensesPage } from './js/pages/expenses.js';
@@ -12,20 +12,21 @@ import { LockScreen } from './js/components/auth.js';
 class App {
   constructor() {
     this.state = new AppState();
-    this.sheetService = new SheetService(this.state);
+    this.supabaseService = new SupabaseService(this.state);
     
     // Instantiate pages & navigation
     this.navigation = new Navigation(this.state);
     this.dashboardPage = new DashboardPage(this.state);
-    this.expensesPage = new ExpensesPage(this.state, this.sheetService);
+    this.expensesPage = new ExpensesPage(this.state, this.supabaseService);
     this.analyticsPage = new AnalyticsPage(this.state);
     this.billsPage = new BillsPage(this.state);
-    this.goalsPage = new GoalsPage(this.state, this.sheetService);
+    this.goalsPage = new GoalsPage(this.state, this.supabaseService);
     this.investmentPage = new InvestmentPage(this.state);
-    this.lockScreen = new LockScreen();
+    this.lockScreen = new LockScreen(this.state, this.supabaseService);
     
-    // Connect sheetService to expensesPage to allow status updates
-    this.sheetService.setExpensesPage(this.expensesPage);
+    // Connect supabaseService to expensesPage to allow status updates
+    this.supabaseService.setExpensesPage(this.expensesPage);
+    this.wasLoggedIn = false;
   }
 
   init() {
@@ -44,16 +45,48 @@ class App {
     // Subscribe pages to state changes
     this.state.subscribe(() => this.render());
 
+    // Sync trigger on login / clear on logout
+    this.state.subscribe(() => {
+      const user = this.state.user;
+      console.log("[App] State updated. User active:", user ? user.email : "none", "wasLoggedIn:", this.wasLoggedIn);
+      if (user && !this.wasLoggedIn) {
+        this.wasLoggedIn = true;
+        this.supabaseService.syncData();
+      } else if (!user) {
+        this.wasLoggedIn = false;
+        // Reset rows to clear UI on logout
+        if (this.state.rows.length > 0) {
+          console.log("[App] User logged out, clearing rows.");
+          this.state.setRows([]);
+        }
+      }
+    });
+
+    // Sidebar logout button setup
+    const logoutBtn = document.querySelector("#logoutSidebarBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        if (confirm("Apakah Anda yakin ingin keluar?")) {
+          try {
+            await this.supabaseService.signOut();
+            this.state.setUser(null);
+          } catch (err) {
+            console.error("Logout error:", err);
+          }
+        }
+      });
+    }
+
     // Clock ticker setup
     this.initClock();
 
-    // Start sync on load with a slight delay to ensure browser readiness
-    window.setTimeout(() => {
-      this.sheetService.syncSheet();
-    }, 300);
-    if (this.state.sheetDataUrl) {
-      window.setInterval(() => this.sheetService.syncSheet(), 60_000);
-    }
+    // Start background polling
+    window.setInterval(() => {
+      if (this.state.user) {
+        this.supabaseService.syncData();
+      }
+    }, 60_000);
     
     // Initial render
     this.render();

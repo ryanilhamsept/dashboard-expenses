@@ -1,9 +1,9 @@
 import { formatMoney, parseAmount } from '../utils.js';
 
 export class GoalsPage {
-  constructor(state, sheetService) {
+  constructor(state, supabaseService) {
     this.state = state;
-    this.sheetService = sheetService;
+    this.supabaseService = supabaseService;
     this.editingGoalId = null;
     this.lastView = "";
   }
@@ -67,7 +67,7 @@ export class GoalsPage {
         }
 
         this.state.saveGoals();
-        this.sheetService?.syncGoals(this.state.goals);
+        this.supabaseService?.syncGoals(this.state.goals);
         this.clearForm();
         this.state.notify();
 
@@ -98,7 +98,7 @@ export class GoalsPage {
               this.clearForm();
             }
             this.state.saveGoals();
-            this.sheetService?.syncGoals(this.state.goals);
+            this.supabaseService?.syncGoals(this.state.goals);
             this.state.notify();
           }
           return;

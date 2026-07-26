@@ -1,9 +1,9 @@
 import { colors, formatMoney, parseDateValue, displayDate, getMonthKey, getCurrentMonthKey, compareExpensesByNewest } from '../utils.js';
 
 export class ExpensesPage {
-  constructor(state, sheetService) {
+  constructor(state, supabaseService) {
     this.state = state;
-    this.sheetService = sheetService;
+    this.supabaseService = supabaseService;
     this.editingRowId = null;
     this.lastView = "";
     this.lastPage = 1;
@@ -23,6 +23,10 @@ export class ExpensesPage {
     this.tableWrapEl = document.querySelector("#expenses .table-wrap");
     this.csvFileEl = document.querySelector("#csvFile");
     this.sheetFormEl = document.querySelector("#sheetForm");
+
+    this.importBanner = document.querySelector("#supabaseImportBanner");
+    this.startImportBtn = document.querySelector("#startImportBtn");
+    this.importFromSheetsBtn = document.querySelector("#importFromSheetsBtn");
 
     // New element selectors for charts
     this.dailyAverageChartEl = document.querySelector("#dailyAverageChart");
@@ -69,7 +73,7 @@ export class ExpensesPage {
         const url = this.sheetUrlEl.value.trim();
         this.state.saveSheetUrl(url);
         this.sheetConfigEl.classList.add("is-hidden");
-        this.sheetService.syncSheet();
+        this.supabaseService.syncData();
       });
     }
 
@@ -79,9 +83,29 @@ export class ExpensesPage {
         if (file) {
           try {
             const text = await file.text();
-            this.sheetService.loadFromCSV(text);
+            const { parseCSV } = await import('../utils.js');
+            const parsed = parseCSV(text);
+            if (confirm(`Upload ${parsed.length} transaksi dari CSV ke database Supabase?`)) {
+              this.setLoading(true);
+              this.setSyncStatus("Uploading CSV to Supabase...");
+              const dbPayloads = parsed.map(r => ({
+                id: r.id,
+                date: r.date,
+                title: r.subcategory,
+                category: r.category,
+                amount: Number(r.amount),
+                source: r.mode,
+                dana_dipakai: r.ambil
+              }));
+              const { error } = await this.supabaseService.supabase.from("transactions").upsert(dbPayloads);
+              if (error) throw error;
+              this.setSyncStatus("CSV upload to Supabase successful!");
+              await this.supabaseService.syncData();
+            }
           } catch (e) {
             this.setSyncStatus(e.message, true);
+          } finally {
+            this.setLoading(false);
           }
         }
       });
@@ -93,11 +117,24 @@ export class ExpensesPage {
         const url = document.querySelector("#sheetUrl").value.trim();
         if (!url) return;
         try {
-          const response = await fetch(url);
-          const text = await response.text();
-          this.sheetService.loadFromCSV(text);
+          if (confirm(`Pindahkan data dari Google Sheets (${url}) ke database Supabase?`)) {
+            await this.supabaseService.importFromGoogleSheets(url);
+          }
         } catch (e) {
           this.setSyncStatus(e.message, true);
+        }
+      });
+    }
+
+    if (this.startImportBtn) {
+      this.startImportBtn.addEventListener("click", async () => {
+        const url = this.state.sheetDataUrl;
+        if (!url) {
+          alert("Gagal mengimpor: URL Google Sheets tidak terkonfigurasi. Silakan simpan URL Google Sheets terlebih dahulu.");
+          return;
+        }
+        if (confirm(`Pindahkan data dari Google Sheets (${url}) ke database Supabase?`)) {
+          await this.supabaseService.importFromGoogleSheets(url);
         }
       });
     }
@@ -125,7 +162,7 @@ export class ExpensesPage {
           const id = deleteBtn.dataset.id;
           if (confirm("Apakah Anda yakin ingin menghapus transaksi ini?")) {
             this.state.deleteExpense(id);
-            this.sheetService?.deleteExpense(id);
+            this.supabaseService?.deleteExpense(id);
           }
           return;
         }
@@ -155,7 +192,7 @@ export class ExpensesPage {
 
             const updatedTransaction = this.state.rows.find((r) => r.id === id);
             if (updatedTransaction) {
-              this.sheetService?.updateExpense(updatedTransaction);
+              this.supabaseService?.updateExpense(updatedTransaction);
             }
 
             this.editingRowId = null;
@@ -280,6 +317,10 @@ export class ExpensesPage {
 
   render() {
     const { rows, currentView } = this.state;
+
+    if (this.importBanner) {
+      this.importBanner.classList.toggle("is-hidden", rows.length > 0);
+    }
     
     if (currentView !== this.lastView) {
       this.editingRowId = null;
