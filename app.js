@@ -75,9 +75,13 @@ class App {
         if (confirm("Apakah Anda yakin ingin keluar?")) {
           try {
             await this.supabaseService.signOut();
-            this.state.setUser(null);
           } catch (err) {
             console.error("Logout error:", err);
+          } finally {
+            this.state.setUser(null);
+            this.lockScreen.show();
+            // Optional: reset the URL hash to avoid being stuck on #logout
+            window.location.hash = "";
           }
         }
       });
