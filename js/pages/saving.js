@@ -193,19 +193,19 @@ export class SavingPage {
       const typeLabel = (account.type || "bank").charAt(0).toUpperCase() + (account.type || "bank").slice(1);
 
       return `
-        <div class="saving-card" style="background: ${style.bg}; position: relative;">
+        <div class="saving-card" style="background: ${style.bg};">
           <div class="saving-card-header">
             <span class="saving-card-icon">${style.icon}</span>
             <span class="saving-card-type">${typeLabel}</span>
           </div>
-          <div style="position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.5rem;">
-            <button class="edit-acc-btn" data-id="${account.id}" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Edit</button>
-            <button class="delete-acc-btn" data-id="${account.id}" style="background: rgba(255,0,0,0.5); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Delete</button>
-          </div>
           <h3 class="saving-card-name">${account.name}</h3>
           <div class="saving-card-balance">${formatMoney(currentBalance)}</div>
-          <div class="saving-card-meta">
+          <div class="saving-card-meta" style="display: flex; justify-content: space-between; align-items: center;">
             <span>Saldo Awal: ${formatMoney(startBal)}</span>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="edit-acc-btn" data-id="${account.id}" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Edit</button>
+              <button class="delete-acc-btn" data-id="${account.id}" style="background: rgba(255,0,0,0.5); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Delete</button>
+            </div>
           </div>
         </div>`;
     }).join("");
