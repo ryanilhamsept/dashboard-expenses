@@ -54,6 +54,13 @@ class App {
       console.log("[App] State updated. User active:", user ? user.email : "none", "wasLoggedIn:", this.wasLoggedIn);
       if (user && !this.wasLoggedIn) {
         this.wasLoggedIn = true;
+        
+        // Update greeting name dynamically
+        const greetingNameEl = document.getElementById("userGreetingName");
+        if (greetingNameEl && user.email) {
+          greetingNameEl.textContent = user.email.split('@')[0];
+        }
+
         this.supabaseService.syncData();
         this.loadGoalsFromSupabase();
       } else if (!user) {

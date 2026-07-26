@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anilhasept Dashboard</title>
+  <title>Dashboard</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -13,7 +13,7 @@
   <aside class="sidebar">
     <div class="brand">
       <img src="logo.png" alt="Logo" class="brand-logo" />
-      <span>Anilhasept</span>
+      <span>Dashboard</span>
     </div>
 
     <nav class="nav" aria-label="Main menu">
@@ -34,7 +34,7 @@
   <main class="shell">
     <header class="topbar">
       <div>
-        <h1>Hi, Anilhasept <span>👋</span></h1>
+        <h1>Hi, <span id="userGreetingName">User</span> <span>👋</span></h1>
         <p>Track your expenses and transactions</p>
       </div>
       <div class="top-actions">
@@ -235,6 +235,39 @@
         </div>
       </div>
 
+      <div id="savingWriter" class="saving-writer">
+        <article class="panel" style="margin-bottom: 2rem;">
+          <div class="panel-head">
+            <div class="title"><span class="badge blue">🏦</span>
+              <h2>Manage Account</h2>
+            </div>
+          </div>
+          <form id="savingForm" class="goal-form">
+            <input id="savingEditingId" type="hidden" />
+            <label>
+              <span>Account Name</span>
+              <input id="savingInputName" type="text" placeholder="e.g. BCA, Mandiri, Cash" required />
+            </label>
+            <label>
+              <span>Type</span>
+              <select id="savingInputType" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit;">
+                <option value="bank">Bank</option>
+                <option value="e-wallet">E-Wallet</option>
+                <option value="cash">Cash</option>
+                <option value="credit card">Credit Card</option>
+                <option value="investment">Investment</option>
+              </select>
+            </label>
+            <label>
+              <span>Starting Balance</span>
+              <input id="savingInputBalance" type="number" step="any" placeholder="0" required />
+            </label>
+            <button id="savingSubmitButton" type="submit" style="margin-top: 1.5rem;">Save Account</button>
+            <button id="savingCancelButton" class="secondary is-hidden" type="button" style="margin-top: 1.5rem;">Cancel</button>
+          </form>
+        </article>
+      </div>
+
       <div id="savingAccountsGrid" class="saving-accounts-grid">
         <!-- Account cards will be rendered here -->
       </div>
@@ -270,7 +303,7 @@
     <div class="lock-card">
       <div class="lock-logo">
         <img src="logo.png" alt="Logo" class="brand-logo" />
-        <span>Anilhasept</span>
+        <span>Dashboard</span>
       </div>
       <h2 id="lockTitle">Sign In</h2>
       <p id="lockSubtitle" class="lock-subtitle">Masuk menggunakan username dan password Anda.</p>
