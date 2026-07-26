@@ -185,9 +185,7 @@ export class SavingPage {
 
     const cardsHtml = this.accounts.map(account => {
       const style = getAccountStyle(account.name);
-      const startBal = Number(account.starting_balance) || 0;
-      const flow = flowByAccount[account.name] || { income: 0, expense: 0 };
-      const currentBalance = Math.max(0, startBal + flow.income - flow.expense);
+      const currentBalance = Number(account.starting_balance) || 0;
       totalBalance += currentBalance;
 
       const typeLabel = (account.type || "bank").charAt(0).toUpperCase() + (account.type || "bank").slice(1);
