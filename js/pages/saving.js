@@ -187,7 +187,7 @@ export class SavingPage {
       const style = getAccountStyle(account.name);
       const startBal = Number(account.starting_balance) || 0;
       const flow = flowByAccount[account.name] || { income: 0, expense: 0 };
-      const currentBalance = startBal + flow.income - flow.expense;
+      const currentBalance = Math.max(0, startBal + flow.income - flow.expense);
       totalBalance += currentBalance;
 
       const typeLabel = (account.type || "bank").charAt(0).toUpperCase() + (account.type || "bank").slice(1);
@@ -200,8 +200,7 @@ export class SavingPage {
           </div>
           <h3 class="saving-card-name">${account.name}</h3>
           <div class="saving-card-balance">${formatMoney(currentBalance)}</div>
-          <div class="saving-card-meta" style="display: flex; justify-content: space-between; align-items: center;">
-            <span>Saldo Awal: ${formatMoney(startBal)}</span>
+          <div class="saving-card-meta" style="display: flex; justify-content: flex-end; align-items: center;">
             <div style="display: flex; gap: 0.5rem;">
               <button class="edit-acc-btn" data-id="${account.id}" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Edit</button>
               <button class="delete-acc-btn" data-id="${account.id}" style="background: rgba(255,0,0,0.5); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Delete</button>

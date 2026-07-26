@@ -121,10 +121,11 @@ export class SupabaseService {
       // Map data from DB to frontend format
       const rows = allData.map((t, idx) => {
         const category = t.category || "Uncategorized";
+        const catStr = String(category).toLowerCase();
         const inferredType =
-          (String(category).toLowerCase().includes("income") ? "income" : "") ||
-          (String(category).toLowerCase().includes("investment") ? "investment" : "") ||
-          (String(category).toLowerCase().includes("subscription") ? "bill" : "expense");
+          (catStr.includes("income") || catStr.includes("gaji") || catStr.includes("pendapatan") || catStr.includes("pemasukan") || catStr.includes("bonus") || catStr.includes("thr") || catStr.includes("profit") ? "income" : "") ||
+          (catStr.includes("investment") || catStr.includes("investasi") ? "investment" : "") ||
+          (catStr.includes("subscription") || catStr.includes("langganan") ? "bill" : "expense");
 
         return {
           id: t.id,
