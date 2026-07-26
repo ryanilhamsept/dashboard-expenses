@@ -143,9 +143,18 @@ export class AnalyticsPage {
       value: monthTotals[month]
     }));
 
+    const monthFilterEl = document.querySelector("#expenseMonthFilter");
+    const selectedFilter = monthFilterEl ? monthFilterEl.value : "all";
+
     const currentMonthExpenses = expenses.filter((row) => getMonthKey(row.date) === latestMonth);
+    let categorySourceRows = currentMonthExpenses;
+    
+    if (currentView === "expenses") {
+      categorySourceRows = selectedFilter === "all" ? expenses : expenses.filter(row => getMonthKey(row.date) === selectedFilter);
+    }
+
     const categoryTotals = Object.entries(
-      groupSum(currentView === "expenses" ? expenses : currentMonthExpenses, (row) => row.category)
+      groupSum(categorySourceRows, (row) => row.category)
     )
       .sort((a, b) => b[1] - a[1])
       .slice(0, 6)

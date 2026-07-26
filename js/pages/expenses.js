@@ -38,6 +38,8 @@ export class ExpensesPage {
   }
 
   setupListeners() {
+    this.monthFilterEl = document.querySelector("#expenseMonthFilter");
+
     if (this.prevPageBtn) {
       this.prevPageBtn.addEventListener("click", () => {
         if (this.state.transactionPage > 1) {
@@ -54,29 +56,12 @@ export class ExpensesPage {
       });
     }
 
-    if (this.sheetConfigBtn) {
-      this.sheetConfigBtn.addEventListener("click", () => {
-        this.sheetConfigEl?.classList.toggle("is-hidden");
-        if (this.sheetUrlEl) this.sheetUrlEl.value = this.state.sheetDataUrl;
+    if (this.monthFilterEl) {
+      this.monthFilterEl.addEventListener("change", () => {
+        this.state.transactionPage = 1; // Reset to first page
+        this.state.notify();
       });
     }
-
-    if (this.sheetCancelBtn) {
-      this.sheetCancelBtn.addEventListener("click", () => {
-        this.sheetConfigEl?.classList.add("is-hidden");
-      });
-    }
-
-    if (this.sheetConfigEl) {
-      this.sheetConfigEl.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const url = this.sheetUrlEl.value.trim();
-        this.state.saveSheetUrl(url);
-        this.sheetConfigEl.classList.add("is-hidden");
-        this.supabaseService.syncData();
-      });
-    }
-
     if (this.csvFileEl) {
       this.csvFileEl.addEventListener("change", async (event) => {
         const file = event.target.files[0];
@@ -108,34 +93,6 @@ export class ExpensesPage {
           } finally {
             this.setLoading(false);
           }
-        }
-      });
-    }
-
-    if (this.sheetFormEl) {
-      this.sheetFormEl.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const url = document.querySelector("#sheetUrl").value.trim();
-        if (!url) return;
-        try {
-          if (confirm(`Pindahkan data dari Google Sheets (${url}) ke database Supabase?`)) {
-            await this.supabaseService.importFromGoogleSheets(url);
-          }
-        } catch (e) {
-          this.setSyncStatus(e.message, true);
-        }
-      });
-    }
-
-    if (this.startImportBtn) {
-      this.startImportBtn.addEventListener("click", async () => {
-        const url = this.state.sheetDataUrl;
-        if (!url) {
-          alert("Gagal mengimpor: URL Google Sheets tidak terkonfigurasi. Silakan simpan URL Google Sheets terlebih dahulu.");
-          return;
-        }
-        if (confirm(`Pindahkan data dari Google Sheets (${url}) ke database Supabase?`)) {
-          await this.supabaseService.importFromGoogleSheets(url);
         }
       });
     }
@@ -337,8 +294,30 @@ export class ExpensesPage {
     const expenses = sorted.filter((row) => !["income", "investment"].includes(row.type));
 
     const isAllExpenses = currentView === "expenses";
+    
+    // Populate month filter dropdown
+    if (this.monthFilterEl) {
+      this.monthFilterEl.style.display = isAllExpenses ? "inline-block" : "none";
+      if (isAllExpenses) {
+        const uniqueMonths = Array.from(new Set(expenses.map(row => getMonthKey(row.date)))).sort().reverse();
+        const currentValue = this.monthFilterEl.value;
+        this.monthFilterEl.innerHTML = `<option value="all">All Months</option>` + 
+          uniqueMonths.map(mKey => {
+            const [year, month] = mKey.split('-');
+            const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long' });
+            return `<option value="${mKey}">${monthName} ${year}</option>`;
+          }).join("");
+        this.monthFilterEl.value = uniqueMonths.includes(currentValue) ? currentValue : (currentValue === "all" ? "all" : "all");
+      }
+    }
+
     const currentMonthKey = getCurrentMonthKey(expenses);
-    const sourceRows = isAllExpenses ? expenses : expenses.filter((row) => getMonthKey(row.date) === currentMonthKey);
+    const selectedFilter = this.monthFilterEl ? this.monthFilterEl.value : "all";
+    
+    const sourceRows = isAllExpenses 
+      ? (selectedFilter === "all" ? expenses : expenses.filter(row => getMonthKey(row.date) === selectedFilter))
+      : expenses.filter((row) => getMonthKey(row.date) === currentMonthKey);
+      
     const tableRows = [...sourceRows].sort(compareExpensesByNewest);
 
     const dashboardRowsPerPage = 20;
