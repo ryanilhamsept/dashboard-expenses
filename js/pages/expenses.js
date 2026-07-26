@@ -95,7 +95,8 @@ export class ExpensesPage {
                 category: r.category,
                 amount: Number(r.amount),
                 source: r.mode,
-                dana_dipakai: r.ambil
+                dana_dipakai: r.ambil,
+                user_id: this.state.user.id
               }));
               const { error } = await this.supabaseService.supabase.from("transactions").upsert(dbPayloads);
               if (error) throw error;

@@ -21,7 +21,7 @@ console.log("");
 // Test 1: Query tanpa auth (anonymous)
 console.log("--- Test 1: Query TANPA login (anonymous) ---");
 const { data: anonData, error: anonError } = await supabase
-    .from("transactions")
+    .from("goals")
     .select("*", { count: "exact", head: true });
 
 if (anonError) {
@@ -71,7 +71,7 @@ if (loginError) {
 // Test 4: Cek struktur tabel
 console.log("\n--- Test 4: Query 1 baris untuk cek kolom ---");
 const { data: sampleData, error: sampleError } = await supabase
-    .from("transactions")
+    .from("goals")
     .select("*")
     .limit(1);
 

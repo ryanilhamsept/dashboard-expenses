@@ -99,6 +99,7 @@ export class SupabaseService {
         const { data, error } = await this.supabase
           .from("transactions")
           .select("*")
+          .eq("user_id", this.state.user.id)
           .order("date", { ascending: false })
           .order("created_at", { ascending: false })
           .range(from, from + PAGE_SIZE - 1);
@@ -159,13 +160,15 @@ export class SupabaseService {
         category: transaction.category,
         amount: Number(transaction.amount),
         source: transaction.mode,
-        dana_dipakai: transaction.ambil
+        dana_dipakai: transaction.ambil,
+        user_id: this.state.user.id
       };
 
       const { error } = await this.supabase
         .from("transactions")
         .update(dbPayload)
-        .eq("id", transaction.id);
+        .eq("id", transaction.id)
+        .eq("user_id", this.state.user.id);
 
       if (error) throw error;
 
@@ -190,7 +193,8 @@ export class SupabaseService {
       const { error } = await this.supabase
         .from("transactions")
         .delete()
-        .eq("id", id);
+        .eq("id", id)
+        .eq("user_id", this.state.user.id);
 
       if (error) throw error;
 
@@ -217,6 +221,7 @@ export class SupabaseService {
       const { data, error } = await this.supabase
         .from("goals")
         .select("*")
+        .eq("user_id", this.state.user.id)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
@@ -241,6 +246,7 @@ export class SupabaseService {
           name: goal.name,
           required: goal.required,
           collected: goal.collected,
+          user_id: this.state.user.id,
           updated_at: new Date().toISOString()
         });
 
@@ -252,7 +258,7 @@ export class SupabaseService {
 
   async deleteGoal(id) {
     try {
-      const { error } = await this.supabase.from("goals").delete().eq("id", id);
+      const { error } = await this.supabase.from("goals").delete().eq("id", id).eq("user_id", this.state.user.id);
       if (error) throw error;
     } catch (error) {
       console.error("[SupabaseService] Failed to delete goal:", error);
@@ -313,7 +319,8 @@ export class SupabaseService {
           category: r.category,
           amount: Number(r.amount),
           source: r.mode,
-          dana_dipakai: r.ambil
+          dana_dipakai: r.ambil,
+          user_id: this.state.user.id
         }));
 
         const { error } = await this.supabase
