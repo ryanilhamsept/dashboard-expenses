@@ -63,6 +63,7 @@ class App {
           console.log("[App] User logged out, clearing rows.");
           this.state.setRows([]);
         }
+        this.lockScreen.show();
       }
     });
 
