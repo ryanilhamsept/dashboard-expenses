@@ -63,6 +63,12 @@ class App {
           console.log("[App] User logged out, clearing rows.");
           this.state.setRows([]);
         }
+        if (this.state.goals.length > 0) {
+          console.log("[App] Clearing local goals on logout.");
+          this.state.goals = [];
+          this.state.activeGoalId = "";
+          this.state.saveGoals();
+        }
         this.lockScreen.show();
       }
     });
@@ -105,15 +111,10 @@ class App {
     const remoteGoals = await this.supabaseService.fetchGoals();
     if (remoteGoals === null) return; // fetch failed, keep local goals
 
-    if (remoteGoals.length > 0) {
-      this.state.goals = remoteGoals;
-      this.state.activeGoalId = remoteGoals[0].id;
-      this.state.saveGoals();
-      this.state.notify();
-    } else if (this.state.goals.length > 0) {
-      // First-time migration: push existing local goals up to Supabase
-      this.state.goals.forEach((goal) => this.supabaseService.upsertGoal(goal));
-    }
+    this.state.goals = remoteGoals;
+    this.state.activeGoalId = remoteGoals.length > 0 ? remoteGoals[0].id : "";
+    this.state.saveGoals();
+    this.state.notify();
   }
 
   initClock() {

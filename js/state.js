@@ -26,7 +26,7 @@ export class AppState {
     const legacyGoal = JSON.parse(localStorage.getItem("expenseDashboardGoal") || "null");
 
     this.goals = (
-      storedGoals?.length
+      Array.isArray(storedGoals)
         ? storedGoals
         : [legacyGoal || { name: "Apple iPhone 17 Pro", required: 145000, collected: 75000 }]
     ).map(this.createGoal);
