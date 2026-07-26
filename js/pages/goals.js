@@ -90,10 +90,10 @@ export class GoalsPage {
         const selectedGoalId = item.dataset.goalId;
 
         if (action === "delete") {
-          if (this.state.goals.length > 1) {
+          if (confirm("Are you sure you want to delete this goal?")) {
             this.state.goals = this.state.goals.filter((goal) => goal.id !== selectedGoalId);
             if (this.state.activeGoalId === selectedGoalId) {
-              this.state.activeGoalId = this.state.goals[0].id;
+              this.state.activeGoalId = this.state.goals.length > 0 ? this.state.goals[0].id : null;
             }
             if (this.editingGoalId === selectedGoalId) {
               this.editingGoalId = null;
